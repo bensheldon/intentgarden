@@ -1,0 +1,9 @@
+h1= title
+p Welcome to #{title}
+
+- if (user) { 
+  p Logged in as #{user.username} 
+    a(href = "/logout") (logout)
+- } else {
+  a(href = "/auth/twitter") Login with Twitter
+- } 
