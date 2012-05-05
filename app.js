@@ -19,6 +19,8 @@ if ( !( process.env.TWITTER_CONSUMER_KEY
   console.log("You're missing environment variables. See `sample.env`");
 }
 
+var PORT = process.env.PORT || 3000;
+
 // Connect to the DB
 mongoose.connect(process.env.MONGOHQ);
 var User = mongoose.model('User', new Schema({
@@ -42,7 +44,6 @@ passport.use(new TwitterStrategy({
     callbackURL: process.env.TWITTER_CALLBACK_URL
   },
   function(token, tokenSecret, profile, done) {
-    //console.log(token, tokenSecret, profile);
     
     User.findOne({providerId: profile.id}, function(err, user) {
       if(!err) {
@@ -146,8 +147,6 @@ app.get('/', routes.index);
 
 
 
-
-
-app.listen(3000, function(){
+app.listen(PORT, function(){
   console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 });
