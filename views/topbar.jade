@@ -1,0 +1,17 @@
+div.navbar.navbar-fixed-top
+  div.navbar-inner
+    div.container
+      a.brand(href='/') IntentGarden 
+            
+      -if(userSession)
+        div#loggedin.btn-group.pull-right
+          a.btn.dropdown-toggle(data-toggle="dropdown", href="#")
+            img.user-avatar(src=userSession.avatarUrl)
+            = userSession.username
+            span.caret
+          ul.dropdown-menu
+            li
+              a(href="/logout") Logout
+      -else
+        div#login.pull-right
+          a#login-btn.btn.btn-primary(href='/auth/twitter') Login with Twitter
