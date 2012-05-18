@@ -1,3 +1,42 @@
-div.span12
-  h1= title
-  p Welcome to #{title}
+
+-if(userSession)
+  -if(userSession.plants.length == 0) 
+    div.row-fluid
+      div.span12
+        div.well
+          a.btn.btn-large.btn-success(href="", data-toggle="modal", href="#planting-form") Make a Planting
+          strong   You haven't yet planted anything!
+          
+          
+  div#planting-form.modal(style="display: none;")
+    form.modal-form.form-horizontal
+
+      div.modal-header
+        button.close(data-dismiss="modal") ×
+        h3 Make a planting
+
+      div.modal-body
+        p Your plant is a representation of your commitment to activities.
+        fieldset
+          div.control-group
+            label.control-label(for="type") Choose a plant
+            div.controls
+              select#type
+                option Fern
+                option Peace Lilly
+                option Succulent
+                option Cactus
+          div.control-group
+            label.control-label(for="description") Name your plant
+            div.controls 
+              input#description(type="text")
+       
+      div.modal-footer
+        button.btn(type="submit", data-dismiss="modal") Cancel
+        button.btn.btn-success(type="submit") Plant this!
+
+-else
+  div.row-fluid
+    div.span12
+      h1= title
+      p Welcome to #{title}
