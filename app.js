@@ -36,6 +36,24 @@ var User = mongoose.model('User', new Schema({
     , token         : String
     , token_secret  : String 
   }
+  , plants        : [ Plant ]
+}));
+
+var Plant = mongoose.model('Plant', new Schema({
+    type          : String
+  , description   : String
+  , createdAt     : { type: Date, default: Date.now }
+  , updatedAt     : { type: Date, default: Date.now }
+  , withersAt     : Date
+  , diesAt        : Date
+  , waterings     : [ Watering ]
+}));
+
+var Watering = mongoose.model('Watering', new Schema({
+    source        : String
+  , createdAt     : { type: Date, default: Date.now }
+  , description   : String
+  , data          : String
 }));
 
 passport.use(new TwitterStrategy({
@@ -58,6 +76,7 @@ passport.use(new TwitterStrategy({
               , token       : token
               , tokenSecret : tokenSecret
             }
+            , plants      : []
           });
         }
         user.updatedAt = new Date();
