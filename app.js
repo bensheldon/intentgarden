@@ -120,6 +120,13 @@ app.configure('production', function(){
   app.use(express.errorHandler());
 });
 
+// Always include the Session in the View
+app.dynamicHelpers({
+  userSession: function(req, res){
+    return req.session.passport.user;
+  }
+});
+
 
 // Redirect the user to Twitter for authentication.  When complete, Twitter
 // will redirect the user back to the application at
