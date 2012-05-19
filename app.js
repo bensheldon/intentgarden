@@ -23,7 +23,25 @@ var PORT = process.env.PORT || 3000;
 
 // Connect to the DB
 mongoose.connect(process.env.MONGOHQ);
-var User = mongoose.model('User', new Schema({
+
+var WateringSchema = new Schema({
+    source        : String
+  , createdAt     : { type: Date, default: Date.now }
+  , description   : String
+  , data          : String
+});
+
+var PlantSchema = new Schema({
+    type          : String
+  , description   : String
+  , createdAt     : { type: Date, default: Date.now }
+  , updatedAt     : { type: Date, default: Date.now }
+  , withersAt     : Date
+  , diesAt        : Date
+  , waterings     : [ WateringSchema ]
+});
+
+var UserSchema = new Schema({
     id            : ObjectId
   , provider_id   : Number
   , username      : String
@@ -36,25 +54,15 @@ var User = mongoose.model('User', new Schema({
     , token         : String
     , token_secret  : String 
   }
-  , plants        : [ Plant ]
-}));
+  , plants        : [ PlantSchema ]
+});
 
-var Plant = mongoose.model('Plant', new Schema({
-    type          : String
-  , description   : String
-  , createdAt     : { type: Date, default: Date.now }
-  , updatedAt     : { type: Date, default: Date.now }
-  , withersAt     : Date
-  , diesAt        : Date
-  , waterings     : [ Watering ]
-}));
+var User = mongoose.model('User', UserSchema);
 
-var Watering = mongoose.model('Watering', new Schema({
-    source        : String
-  , createdAt     : { type: Date, default: Date.now }
-  , description   : String
-  , data          : String
-}));
+
+
+
+
 
 passport.use(new TwitterStrategy({
     consumerKey: process.env.TWITTER_CONSUMER_KEY,
@@ -110,9 +118,9 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(obj, done) {
-    User.findById(obj._id, function (err, user) {
-        done(err, user);
-    });
+  User.findById(obj._id, function (err, user) {
+    done(err, user);
+  });
 });
 
 
@@ -157,9 +165,12 @@ app.get('/auth/twitter', passport.authenticate('twitter'));
 // access was granted, the user will be logged in.  Otherwise,
 // authentication has failed.
 app.get('/auth/twitter/callback', 
-         passport.authenticate('twitter', 
-          { successRedirect: '/',
-            failureRedirect: '/login' }
+         passport.authenticate(
+           'twitter', 
+           { 
+             successRedirect: '/',
+             failureRedirect: '/login' 
+           }
 ));
 
 
@@ -170,6 +181,37 @@ app.get('/logout', function(req, res){
 
 // Routes
 app.get('/', routes.index);
+app.post('/plants', function(req, res) {
+  if (req.session.passport.user) {
+    // load our user
+    User.findById(req.session.passport.user._id, function (err, user){
+      // add our plant
+      console.log(req.body.plant);
+      if(req.body.plant.id && user.plants[req.body.plant.id]) {
+        user.plants[req.body.plant.id].type = req.body.plant.type;
+        user.plants[req.body.plant.id].description = req.body.plant.description;
+      }
+      else {
+        user.plants.push({
+            type          : req.body.plant.type
+          , description   : req.body.plant.description
+        });
+      }
+      // save the user
+      user.save(function (err) {
+        console.log(user);
+        // Update the session user
+        req.session.passport.user = user.toObject();
+        req.flash('info', 'We will save your plant.');
+        res.redirect('/'); // Redirect back home
+      });
+    });
+  }
+  else {
+    req.flash('error', 'You are not logged in!');
+    res.redirect('/'); // Redirect back home
+  }
+});
 
 
 

@@ -6,10 +6,16 @@
         div.well
           a.btn.btn-large.btn-success(href="", data-toggle="modal", href="#planting-form") Make a Planting
           strong   You haven't yet planted anything!
-          
+  -else 
+    div.row-fluid
+      div.span12
+        div.well
+          a.btn.btn-large.btn-success(href="", data-toggle="modal", href="#planting-form") Edit your Plant
+          strong   See what you've got!
+  
           
   div#planting-form.modal(style="display: none;")
-    form.modal-form.form-horizontal
+    form.modal-form.form-horizontal(action="/plants", method="POST")
 
       div.modal-header
         button.close(data-dismiss="modal") ×
@@ -21,15 +27,25 @@
           div.control-group
             label.control-label(for="type") Choose a plant
             div.controls
-              select#type
-                option Fern
-                option Peace Lilly
-                option Succulent
-                option Cactus
+              select#type(name="plant[type]")
+                - var options = [{value: 'Fern', label: 'Fern'}, {value: 'Peace Lilly', label: 'Peace Lilly'}, {value: 'Succulent', label: 'Succulent'}, {value: 'Cactus', label: 'Cactus'}]
+                option(value="") -- Select Plant --
+                -if (userSession.plants.length > 0)
+                  each option in options
+                    option(value=option.value, selected=(userSession.plants[0].type==option.value))= option.label
+                -else 
+                  each option in options
+                    option(value=option.value)= option.label 
           div.control-group
             label.control-label(for="description") Name your plant
-            div.controls 
-              input#description(type="text")
+            div.controls
+              -if (userSession.plants.length > 0)
+                input#description(type="text", name="plant[description]", value=userSession.plants[0].description)
+              -else
+                input#description(type="text", name="plant[description]")
+            
+          -if (userSession.plants.length > 0)
+            input(type="hidden", name="plant[id]", value="0")
        
       div.modal-footer
         button.btn(type="submit", data-dismiss="modal") Cancel
